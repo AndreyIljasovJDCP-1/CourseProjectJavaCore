@@ -1,9 +1,6 @@
 import statistics.Statistic;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -13,9 +10,14 @@ public class Main {
     private static final int PORT = 8085;
 
     public static void main(String[] args) {
-
-        Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
-        Statistic statistic = new Statistic(titleMap);
+        File autoSave = new File("data.bin");
+        Statistic statistic;
+         if (autoSave.exists()) {
+            statistic = Statistic.loadFromBinFile(autoSave);
+        } else {
+            Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
+            statistic = new Statistic(titleMap);
+        }
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started...");
