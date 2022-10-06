@@ -30,15 +30,16 @@ public class Statistic implements Serializable {
         requestList.forEach(System.out::println);
         String category = titleMap.getOrDefault(request.getTitle(), "другое");
         categoryMap.merge(category, request.getSum(), Integer::sum);
-        Category maxCategory = getMaxCategory();
 
-        String day = request.getDate();
+
+        Filter filter=new Filter(request.getDate());
+        /*String day = request.getDate();
         String year = request.getDate().split("\\.")[0];
-        String month = year + "." + request.getDate().split("\\.")[1];
-
-        Category maxDayCategory = getMaxDayCategory(day);
-        Category maxMonthCategory = getMaxMonthCategory(month);
-        Category maxYearCategory = getMaxYearCategory(year);
+        String month = year + "." + request.getDate().split("\\.")[1];*/
+        Category maxCategory = getMaxCategory();
+        Category maxDayCategory = getMaxCategory(filter.getDay());
+        Category maxMonthCategory = getMaxCategory(filter.getMonth());
+        Category maxYearCategory = getMaxCategory(filter.getYear());
         Response response = new Response(
                 maxCategory,
                 maxDayCategory,
@@ -50,10 +51,10 @@ public class Statistic implements Serializable {
         return gson.toJson(response);
     }
 
-    public Category getMaxDayCategory(String date) {
+    public Category getMaxCategory(String date) {
         Map<String, Integer> map = new TreeMap<>();
         for (Request request : requestList) {
-            if (request.getDate().equals(date)) {
+            if (request.getDate().contains(date)) {
                 String category = titleMap.getOrDefault(request.getTitle(), "другое");
                 map.merge(category, request.getSum(), Integer::sum);
             }
@@ -61,7 +62,7 @@ public class Statistic implements Serializable {
         return getMaxCategory(map);
     }
 
-    public Category getMaxMonthCategory(String date){
+    /*public Category getMaxMonthCategory(String date){
         Map<String, Integer> map = new TreeMap<>();
         for (Request request : requestList) {
             String month = String.join(".",
@@ -85,7 +86,7 @@ public class Statistic implements Serializable {
             }
         }
         return getMaxCategory(map);
-    }
+    }*/
     public Category getMaxCategory() {
         Optional<Map.Entry<String, Integer>> max = categoryMap.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
