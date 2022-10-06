@@ -5,7 +5,6 @@ public class TestClient {
     private static final int PORT = 8085;
     private static final String HOST = "localhost";
 
-
     public static void main(String[] args) {
         try (Socket clientSocket = new Socket(HOST, PORT);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);

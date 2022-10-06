@@ -41,7 +41,5 @@ public class Main {
             System.out.println("Не могу стартовать сервер");
             e.printStackTrace();
         }
-
-
     }
 }
