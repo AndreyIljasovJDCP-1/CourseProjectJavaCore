@@ -12,8 +12,10 @@ public class Main {
     public static void main(String[] args) {
         File autoSave = new File("data.bin");
         Statistic statistic;
-         if (autoSave.exists()) {
+        if (autoSave.exists()) {
+            System.out.println("Restore history...");
             statistic = Statistic.loadFromBinFile(autoSave);
+            statistic.getRequestList().forEach(System.out::println);
         } else {
             Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
             statistic = new Statistic(titleMap);

@@ -2,9 +2,15 @@ package statistics;
 
 public class Response {
     private Category maxCategory;
+    private final Category maxDayCategory;
+    private final Category maxMonthCategory;
+    private final Category maxYearCategory;
 
-    public Response(Category maxCategory) {
+    public Response(Category maxCategory, Category maxDayCategory, Category maxMonthCategory, Category maxYearCategory) {
         this.maxCategory = maxCategory;
+        this.maxDayCategory = maxDayCategory;
+        this.maxMonthCategory = maxMonthCategory;
+        this.maxYearCategory = maxYearCategory;
     }
 
     public Category getMaxCategory() {
@@ -17,6 +23,9 @@ public class Response {
 
     @Override
     public String toString() {
-        return "maxCategory: " + maxCategory;
+        return "maxCategory: " + maxCategory
+                + "\nmaxDayCategory: " + maxDayCategory
+                + "\nmaxMonthCategory: " + maxMonthCategory
+                + "\nmaxYearCategory: " + maxYearCategory;
     }
 }

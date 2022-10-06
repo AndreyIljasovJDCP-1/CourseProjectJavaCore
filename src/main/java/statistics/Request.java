@@ -1,6 +1,8 @@
 package statistics;
 
-public class Request {
+import java.io.Serializable;
+
+public class Request implements Serializable {
     private final String title;
     private final String date;
     private final int sum;
@@ -25,6 +27,6 @@ public class Request {
 
     @Override
     public String toString() {
-        return "название: " + title + "\nдата: " + date + "\nсумма: " + sum;
+        return String.format("название: %s  дата: %s сумма: %s", title, date, sum);
     }
 }

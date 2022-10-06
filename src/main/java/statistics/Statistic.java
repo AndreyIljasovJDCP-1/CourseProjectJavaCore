@@ -7,38 +7,95 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
 import java.io.*;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Statistic implements Serializable {
     private static final char SEPARATOR = '\t';
     private final Map<String, String> titleMap;
     private final Map<String, Integer> categoryMap;
+    private final List<Request> requestList;
 
     public Statistic(Map<String, String> titleMap) {
         this.titleMap = titleMap;
         this.categoryMap = new TreeMap<>();
+        this.requestList = new ArrayList<>();
     }
 
     public String processingRequest(String stringJson) {
         Gson gson = new Gson();
         Request request = gson.fromJson(stringJson, Request.class);
+        requestList.add(request);
+        System.out.println();
+        requestList.forEach(System.out::println);
         String category = titleMap.getOrDefault(request.getTitle(), "другое");
         categoryMap.merge(category, request.getSum(), Integer::sum);
+        Category maxCategory = getMaxCategory();
 
-        Response maxCategory = getMaxCategory();
+        String day = request.getDate();
+        String year = request.getDate().split("\\.")[0];
+        String month = year + "." + request.getDate().split("\\.")[1];
+
+        Category maxDayCategory = getMaxDayCategory(day);
+        Category maxMonthCategory = getMaxMonthCategory(month);
+        Category maxYearCategory = getMaxYearCategory(year);
+        Response response = new Response(
+                maxCategory,
+                maxDayCategory,
+                maxMonthCategory,
+                maxYearCategory
+        );
+
         saveToBinFile(new File("data.bin"));
-        return gson.toJson(maxCategory);
+        return gson.toJson(response);
     }
 
-    public Response getMaxCategory() {
+    public Category getMaxDayCategory(String date) {
+        Map<String, Integer> map = new TreeMap<>();
+        for (Request request : requestList) {
+            if (request.getDate().equals(date)) {
+                String category = titleMap.getOrDefault(request.getTitle(), "другое");
+                map.merge(category, request.getSum(), Integer::sum);
+            }
+        }
+        return getMaxCategory(map);
+    }
+
+    public Category getMaxMonthCategory(String date){
+        Map<String, Integer> map = new TreeMap<>();
+        for (Request request : requestList) {
+            String month = String.join(".",
+                    request.getDate().split("\\.")[0],
+                    request.getDate().split("\\.")[1]
+            );
+            if (month.equals(date)) {
+                String category = titleMap.getOrDefault(request.getTitle(), "другое");
+                map.merge(category, request.getSum(), Integer::sum);
+            }
+        }
+        return getMaxCategory(map);
+    }
+    public Category getMaxYearCategory(String date){
+        Map<String, Integer> map = new TreeMap<>();
+        for (Request request : requestList) {
+            String year = request.getDate().split("\\.")[0];
+            if (year.equals(date)) {
+                String category = titleMap.getOrDefault(request.getTitle(), "другое");
+                map.merge(category, request.getSum(), Integer::sum);
+            }
+        }
+        return getMaxCategory(map);
+    }
+    public Category getMaxCategory() {
         Optional<Map.Entry<String, Integer>> max = categoryMap.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
-        return max.map(kv -> new Response(
-                new Category(kv.getKey(), kv.getValue()))).orElse(null);
+        return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
+    }
+
+    public Category getMaxCategory(Map<String, Integer> map) {
+        Optional<Map.Entry<String, Integer>> max = map.entrySet().stream()
+                .max(Comparator.comparingInt(Map.Entry::getValue));
+        return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
     }
 
     public void saveToBinFile(File textFile) {
@@ -51,6 +108,7 @@ public class Statistic implements Serializable {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     public static Statistic loadFromBinFile(File textFile) {
         Statistic statistic;
 
@@ -62,6 +120,7 @@ public class Statistic implements Serializable {
         }
         return statistic;
     }
+
     public static Map<String, String> createTitleMapFromTSV(String path) {
         Map<String, String> map;
 
@@ -80,4 +139,23 @@ public class Statistic implements Serializable {
         return map;
     }
 
+    public Map<String, String> getTitleMap() {
+        return titleMap;
+    }
+
+    public Map<String, Integer> getCategoryMap() {
+        return categoryMap;
+    }
+
+    public List<Request> getRequestList() {
+        return requestList;
+    }
+    /*Map<String, Integer> map = requestList.stream()
+                .filter(el -> el.getDate().equals(day))
+                .collect(
+                        Collectors.toMap(
+                                el -> titleMap.getOrDefault(request.getTitle(), "другое"),
+                                Request::getSum,
+                                Integer::sum)
+                );*/
 }
