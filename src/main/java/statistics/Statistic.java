@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Statistic {
     private static final char SEPARATOR = '\t';
     private final Map<String, String> titleMap;
-    private final Map<String, Integer> categoryMap;
+    private Map<String, Integer> categoryMap;
 
     public Statistic(Map<String, String> titleMap) {
         this.titleMap = titleMap;
@@ -60,4 +60,11 @@ public class Statistic {
         return map;
     }
 
+    public Map<String, Integer> getCategoryMap() {
+        return categoryMap;
+    }
+
+    public void setCategoryMap(Map<String, Integer> categoryMap) {
+        this.categoryMap = new TreeMap<>(categoryMap);
+    }
 }

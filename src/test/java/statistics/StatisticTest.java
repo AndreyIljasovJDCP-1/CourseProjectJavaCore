@@ -5,18 +5,23 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @DisplayName("Тест класса Statistic.")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StatisticTest {
-     private static Map<String, String> testMap;
+    private static Map<String, String> titleMap;
+    private final Comparator<Response> myComparator = (o1, o2) ->
+            Objects.equals(o1.getMaxCategory().getCategory(), o2.getMaxCategory().getCategory())
+                    && o1.getMaxCategory().getSum() == o2.getMaxCategory().getSum()
+                    ? 0 : -1;
 
     @BeforeAll
     static void setUp() {
-        testMap = Statistic.createTitleMapFromTSV("categories.tsv");
-
+        titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
     }
 
     @Test
@@ -25,7 +30,7 @@ class StatisticTest {
     void createTitleMapFromTSVReturnHashMap() {
 
         Assertions.assertEquals("java.util.HashMap",
-                testMap.getClass().getName());
+                titleMap.getClass().getName());
     }
 
     @Test
@@ -33,7 +38,7 @@ class StatisticTest {
     @DisplayName("Тест: размер HashMap из tsv файла")
     void createTitleMapFromTSVReturnMapSize() {
 
-        Assertions.assertEquals(8, testMap.size());
+        Assertions.assertEquals(8, titleMap.size());
     }
 
     @Test
@@ -41,16 +46,17 @@ class StatisticTest {
     @DisplayName("Тест: файла categories.tsv не существует")
     void createTitleMapFromTSVFileNotFoundThrowException() {
 
-        Assertions.assertThrows(RuntimeException.class, ()->Statistic.createTitleMapFromTSV("nofile.tsv"));
+        Assertions.assertThrows(RuntimeException.class,
+                () -> Statistic.createTitleMapFromTSV("nofile.tsv"));
     }
 
     @Order(4)
-    @DisplayName("Тест: проверка категорий")
+    @DisplayName("Тест: проверка карты категорий")
     @ParameterizedTest
     @MethodSource("getArguments")
     void createTitleMapFromTSVReturnRightHashMap(String input, String expected) {
 
-        Assertions.assertEquals(expected, testMap.get(input));
+        Assertions.assertEquals(expected, titleMap.get(input));
     }
 
     private static Stream<Arguments> getArguments() {
@@ -64,5 +70,41 @@ class StatisticTest {
                 Arguments.of("мыло", "быт"),
                 Arguments.of("акции", "финансы")
         );
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Тест: найти max категорию (в алфавитном порядке).")
+    void getMaxCategoryReturnMax() {
+        Statistic statistic = new Statistic(titleMap);
+        statistic.setCategoryMap(
+                Map.of(
+                        "еда", 100,
+                        "финансы", 100,
+                        "одежда", 100,
+                        "быт", 100
+                )
+        );
+        Response expected = new Response(new Category("быт", 100));
+        int comparing = myComparator.compare(expected, statistic.getMaxCategory());
+        Assertions.assertEquals(0, comparing);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Тест: обработка запроса. Вернуть максимальную категорию.")
+    void processingRequestReturnJsonMaxCategory() {
+        Statistic statistic = new Statistic(titleMap);
+        statistic.setCategoryMap(
+                Map.of(
+                        "еда", 100,
+                        "финансы", 100,
+                        "одежда", 100,
+                        "быт", 100
+                )
+        );
+        String stringJson = "{\"title\": \"курица\", \"date\": \"2022.02.10\", \"sum\": 1}";
+        String expected = "{\"maxCategory\":{\"category\":\"еда\",\"sum\":101}}";
+        Assertions.assertEquals(expected, statistic.processingRequest(stringJson));
     }
 }
