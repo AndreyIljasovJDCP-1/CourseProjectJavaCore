@@ -11,23 +11,13 @@ import java.util.stream.Stream;
 @DisplayName("Тест класса Statistic.")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StatisticTest {
-     static Map<String, String> testMap;
+     private static Map<String, String> testMap;
 
     @BeforeAll
     static void setUp() {
-        testMap = Statistic.createTitleMapFromTSV("D:\\JAVA\\Projects\\CourseProjectJavaCore\\categories.tsv");
-
-    }
-    /*@BeforeEach
-    void setUp() {
         testMap = Statistic.createTitleMapFromTSV("categories.tsv");
 
-
     }
-    @AfterEach
-    void tearDown() {
-        System.out.println();
-    }*/
 
     @Test
     @Order(1)
@@ -46,15 +36,21 @@ class StatisticTest {
         Assertions.assertEquals(8, testMap.size());
     }
 
+    @Test
     @Order(3)
+    @DisplayName("Тест: файла categories.tsv не существует")
+    void createTitleMapFromTSVFileNotFoundThrowException() {
+
+        Assertions.assertThrows(RuntimeException.class, ()->Statistic.createTitleMapFromTSV("nofile.tsv"));
+    }
+
+    @Order(4)
     @DisplayName("Тест: проверка категорий")
     @ParameterizedTest
     @MethodSource("getArguments")
     void createTitleMapFromTSVReturnRightHashMap(String input, String expected) {
-        //Map<String, String> testMap=Statistic.createTitleMapFromTSV("categories.tsv");
 
         Assertions.assertEquals(expected, testMap.get(input));
-
     }
 
     private static Stream<Arguments> getArguments() {
