@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StatisticTest {
     private static Map<String, String> titleMap;
-    private Statistic statistic;
     private final Comparator<Category> categoryComparator = (o1, o2) ->
             Objects.equals(o1.getCategory(), o2.getCategory())
                     && o1.getSum() == o2.getSum()
@@ -28,11 +27,6 @@ class StatisticTest {
     @BeforeAll
     static void setUpApp() {
         titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
-    }
-
-    @BeforeEach
-    void setUp() {
-        statistic = new Statistic(titleMap);
     }
 
     @Test
@@ -82,7 +76,8 @@ class StatisticTest {
     @Test
     @Order(5)
     @DisplayName("Тест: получить объект Request из строки json")
-    void getRequestFromJsonString() {
+    void getRequestFromJsonStringReturnRequest() {
+        Statistic statistic = new Statistic(titleMap);
         String json = "{\"title\": \"мыло\", \"date\": \"2022.02.10\", \"sum\": 1}";
         Request expected = new Request("мыло", "2022.02.10", 1);
         int comparing = requestComparator.compare(expected, statistic.getRequestFromJsonString(json));
@@ -96,6 +91,7 @@ class StatisticTest {
     @DisplayName("Тест: добавить данные из запроса в статистику по категориям")
     void addToCategoryMapUpdateCategoryMap() {
         Request request = new Request("мыло", "2022.02.10", 1);
+        Statistic statistic = new Statistic(titleMap);
         statistic.setCategoryMap(
                 Map.of(
                         "еда", 100,
@@ -113,6 +109,7 @@ class StatisticTest {
     @DisplayName("Тест: добавить новый продукт в категорию \"другое\"")
     void addToCategoryMapAnotherCategory() {
         Request request = new Request("новый продукт", "2022.02.10", 101);
+        Statistic statistic = new Statistic(titleMap);
         statistic.setCategoryMap(
                 Map.of(
                         "еда", 100,
@@ -123,13 +120,13 @@ class StatisticTest {
         );
         statistic.addToCategoryMap(request);
         Assertions.assertEquals(101, statistic.getCategoryMap().get("другое"));
-        Assertions.assertEquals(5, statistic.getCategoryMap().size());
     }
 
     @Test
     @Order(8)
     @DisplayName("Тест: найти max категорию (в алфавитном порядке).")
     void getMaxCategoryReturnMaxCategory() {
+        Statistic statistic = new Statistic(titleMap);
         statistic.setCategoryMap(
                 Map.of(
                         "еда", 100,
@@ -146,7 +143,8 @@ class StatisticTest {
     @Test
     @Order(9)
     @DisplayName("Тест: получить строку json из объекта Response")
-    void getJsonStringFromResponse() {
+    void getJsonStringFromResponseReturnJsonString() {
+        Statistic statistic = new Statistic(titleMap);
         Response response = new Response(new Category("еда", 100));
         String expected = "{\"maxCategory\":{\"category\":\"еда\",\"sum\":100}}";
         Assertions.assertEquals(expected, statistic.getJsonStringFromResponse(response));
