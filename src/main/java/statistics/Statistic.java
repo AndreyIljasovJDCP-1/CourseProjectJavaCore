@@ -24,22 +24,25 @@ public class Statistic {
         this.categoryMap = new TreeMap<>();
     }
 
-    public String processingRequest(String stringJson) {
+    public Request getRequestFromJsonString(String requestJsonString) {
         Gson gson = new Gson();
-        Request request = gson.fromJson(stringJson, Request.class);
-        String category = titleMap.getOrDefault(request.getTitle(), "другое");
-        categoryMap.merge(category, request.getSum(), Integer::sum);
-
-        Response maxCategory = getMaxCategory();
-
-        return gson.toJson(maxCategory);
+        return gson.fromJson(requestJsonString, Request.class);
     }
 
-    public Response getMaxCategory() {
+    public void addToCategoryMap(Request request) {
+        String category = titleMap.getOrDefault(request.getTitle(), "другое");
+        categoryMap.merge(category, request.getSum(), Integer::sum);
+    }
+
+    public Category getMaxCategory() {
         Optional<Map.Entry<String, Integer>> max = categoryMap.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
-        return max.map(kv -> new Response(
-                new Category(kv.getKey(), kv.getValue()))).orElse(null);
+        return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
+    }
+
+    public String getJsonStringFromResponse(Response response) {
+        Gson gson = new Gson();
+        return gson.toJson(response);
     }
 
     public static Map<String, String> createTitleMapFromTSV(String path) {
