@@ -31,7 +31,7 @@ class StatisticTest {
     }
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         statistic = new Statistic(titleMap);
     }
 
@@ -90,6 +90,7 @@ class StatisticTest {
         Assertions.assertEquals(0, comparing);
 
     }
+
     @Test
     @Order(6)
     @DisplayName("Тест: добавить данные из запроса в статистику по категориям")
@@ -106,6 +107,7 @@ class StatisticTest {
         statistic.addToCategoryMap(request);
         Assertions.assertEquals(101, statistic.getCategoryMap().get("быт"));
     }
+
     @Test
     @Order(7)
     @DisplayName("Тест: добавить новый продукт в категорию \"другое\"")
@@ -125,7 +127,7 @@ class StatisticTest {
     }
 
     @Test
-    @Order(5)
+    @Order(8)
     @DisplayName("Тест: найти max категорию (в алфавитном порядке).")
     void getMaxCategoryReturnMaxCategory() {
         statistic.setCategoryMap(
@@ -142,9 +144,11 @@ class StatisticTest {
     }
 
     @Test
+    @Order(9)
+    @DisplayName("Тест: получить строку json из объекта Response")
     void getJsonStringFromResponse() {
-        Response response=new Response(new Category("еда",100));
-        String expected="{\"maxCategory\": {\"category\": \"еда\", \"sum\": 1}}";
-
+        Response response = new Response(new Category("еда", 100));
+        String expected = "{\"maxCategory\":{\"category\":\"еда\",\"sum\":100}}";
+        Assertions.assertEquals(expected, statistic.getJsonStringFromResponse(response));
     }
 }
