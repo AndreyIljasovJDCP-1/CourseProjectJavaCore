@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class Main {
 
-    private static final int PORT = 8085;
+    private static final int PORT = 8989;
 
     public static void main(String[] args) {
 
@@ -29,18 +29,15 @@ public class Main {
                              clientSocket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(
                              clientSocket.getInputStream()))) {
+
                     String jsonString = in.readLine();
-                    //формируем объект Request из строки Json
-                    Request request=statistic.getRequestFromJsonString(jsonString);
-                    //добавляем в мапу Категорий
+                    Request request = statistic.getRequestFromJsonString(jsonString);
                     statistic.addToCategoryMap(request);
-                    // ищем максимальную категорию
-                    Category maxCategory=statistic.getMaxCategory();
-                    //создаем объект Response
-                    Response response=new Response(maxCategory);
-                    //переводим объект Response  в строку json
+                    Category maxCategory = statistic.getMaxCategory();
+                    Response response = new Response(maxCategory);
                     String responseJsonString = statistic.getJsonStringFromResponse(response);
                     out.println(responseJsonString);
+
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage());
                 }
