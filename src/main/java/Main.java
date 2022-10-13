@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import statistics.Category;
 import statistics.Request;
 import statistics.Response;
@@ -16,7 +17,7 @@ public class Main {
     private static final int PORT = 8989;
 
     public static void main(String[] args) {
-
+        Gson gson = new Gson();
         Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
         Statistic statistic = new Statistic(titleMap);
 
@@ -31,11 +32,14 @@ public class Main {
                              clientSocket.getInputStream()))) {
 
                     String jsonString = in.readLine();
-                    Request request = statistic.getRequestFromJsonString(jsonString);
+                    Request request = gson.fromJson(jsonString, Request.class);
+
                     statistic.addToCategoryMap(request);
+
                     Category maxCategory = statistic.getMaxCategory();
                     Response response = new Response(maxCategory);
-                    String responseJsonString = statistic.getJsonStringFromResponse(response);
+
+                    String responseJsonString = gson.toJson(response);
                     out.println(responseJsonString);
 
                 } catch (Exception e) {

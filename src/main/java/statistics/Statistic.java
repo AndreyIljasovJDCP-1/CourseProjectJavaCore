@@ -1,6 +1,5 @@
 package statistics;
 
-import com.google.gson.Gson;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -24,11 +23,6 @@ public class Statistic {
         this.categoryMap = new TreeMap<>();
     }
 
-    public Request getRequestFromJsonString(String requestJsonString) {
-        Gson gson = new Gson();
-        return gson.fromJson(requestJsonString, Request.class);
-    }
-
     public void addToCategoryMap(Request request) {
         String category = titleMap.getOrDefault(request.getTitle(), "другое");
         categoryMap.merge(category, request.getSum(), Integer::sum);
@@ -38,11 +32,6 @@ public class Statistic {
         Optional<Map.Entry<String, Integer>> max = categoryMap.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
         return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
-    }
-
-    public String getJsonStringFromResponse(Response response) {
-        Gson gson = new Gson();
-        return gson.toJson(response);
     }
 
     public static Map<String, String> createTitleMapFromTSV(String path) {
