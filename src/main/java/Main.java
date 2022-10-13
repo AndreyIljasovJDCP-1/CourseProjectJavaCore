@@ -1,3 +1,7 @@
+import com.google.gson.Gson;
+import statistics.Category;
+import statistics.Request;
+import statistics.Response;
 import statistics.Statistic;
 
 import java.io.*;
@@ -11,8 +15,9 @@ public class Main {
 
     public static void main(String[] args) {
         File autoSave = new File("data.bin");
+        Gson gson = new Gson();
         Statistic statistic;
-         if (autoSave.exists()) {
+        if (autoSave.exists()) {
             statistic = Statistic.loadFromBinFile(autoSave);
         } else {
             Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
@@ -28,9 +33,20 @@ public class Main {
                              clientSocket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(
                              clientSocket.getInputStream()))) {
-                    String request = in.readLine();
-                    String response = statistic.processingRequest(request);
-                    out.println(response);
+
+                    String jsonString = in.readLine();
+                    Request request = gson.fromJson(jsonString, Request.class);
+
+                    statistic.addToCategoryMap(request);
+
+                    Category maxCategory = statistic.getMaxCategory();
+                    Response response = new Response(maxCategory);
+
+                    String responseJsonString = gson.toJson(response);
+                    out.println(responseJsonString);
+
+                    statistic.saveToBinFile(autoSave);
+
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage());
                 }

@@ -16,29 +16,22 @@ import java.util.stream.Collectors;
 public class Statistic implements Serializable {
     private static final char SEPARATOR = '\t';
     private final Map<String, String> titleMap;
-    private final Map<String, Integer> categoryMap;
+    private Map<String, Integer> categoryMap;
 
     public Statistic(Map<String, String> titleMap) {
         this.titleMap = titleMap;
         this.categoryMap = new TreeMap<>();
     }
 
-    public String processingRequest(String stringJson) {
-        Gson gson = new Gson();
-        Request request = gson.fromJson(stringJson, Request.class);
+    public void addToCategoryMap(Request request) {
         String category = titleMap.getOrDefault(request.getTitle(), "другое");
         categoryMap.merge(category, request.getSum(), Integer::sum);
-
-        Response maxCategory = getMaxCategory();
-        saveToBinFile(new File("data.bin"));
-        return gson.toJson(maxCategory);
     }
 
-    public Response getMaxCategory() {
+    public Category getMaxCategory() {
         Optional<Map.Entry<String, Integer>> max = categoryMap.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
-        return max.map(kv -> new Response(
-                new Category(kv.getKey(), kv.getValue()))).orElse(null);
+        return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
     }
 
     public void saveToBinFile(File textFile) {
@@ -51,6 +44,7 @@ public class Statistic implements Serializable {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     public static Statistic loadFromBinFile(File textFile) {
         Statistic statistic;
 
@@ -62,6 +56,7 @@ public class Statistic implements Serializable {
         }
         return statistic;
     }
+
     public static Map<String, String> createTitleMapFromTSV(String path) {
         Map<String, String> map;
 
@@ -78,6 +73,14 @@ public class Statistic implements Serializable {
             throw new RuntimeException("Ошибка чтения TSV файла " + e.getMessage());
         }
         return map;
+    }
+
+    public Map<String, Integer> getCategoryMap() {
+        return categoryMap;
+    }
+
+    public void setCategoryMap(Map<String, Integer> categoryMap) {
+        this.categoryMap = new TreeMap<>(categoryMap);
     }
 
 }
