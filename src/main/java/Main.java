@@ -41,9 +41,9 @@ public class Main {
                     Filter filter = new Filter(request.getDate());
 
                     Category maxCategory = statistic.getMaxCategory();
-                    Category maxDayCategory = statistic.getMaxCategory(filter.getDay());
-                    Category maxMonthCategory = statistic.getMaxCategory(filter.getMonth());
-                    Category maxYearCategory = statistic.getMaxCategory(filter.getYear());
+                    Category maxDayCategory = statistic.getMaxCategoryByFilter(filter.getDay());
+                    Category maxMonthCategory = statistic.getMaxCategoryByFilter(filter.getMonth());
+                    Category maxYearCategory = statistic.getMaxCategoryByFilter(filter.getYear());
                     Response response = new Response(
                             maxCategory,
                             maxDayCategory,

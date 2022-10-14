@@ -5,3 +5,4 @@ out/
 target/
 *.json
 *.bin
+src/main/java/TestClient.java

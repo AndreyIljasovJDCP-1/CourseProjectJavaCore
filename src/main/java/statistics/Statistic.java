@@ -1,6 +1,5 @@
 package statistics;
 
-import com.google.gson.Gson;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 public class Statistic implements Serializable {
     private static final char SEPARATOR = '\t';
     private final Map<String, String> titleMap;
-    private final Map<String, Integer> categoryMap;
+    private Map<String, Integer> categoryMap;
     private final List<Request> requestList;
 
     public Statistic(Map<String, String> titleMap) {
@@ -37,34 +36,7 @@ public class Statistic implements Serializable {
         return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
     }
 
-    public String processingRequest(String stringJson) {
-        Gson gson = new Gson();
-        Request request = gson.fromJson(stringJson, Request.class);
-
-        System.out.println();
-        requestList.forEach(System.out::println);
-        String category = titleMap.getOrDefault(request.getTitle(), "другое");
-        categoryMap.merge(category, request.getSum(), Integer::sum);
-
-        Filter filter = new Filter(request.getDate());
-
-        Category maxCategory = getMaxCategory(categoryMap);
-        Category maxDayCategory = getMaxCategory(filter.getDay());
-        Category maxMonthCategory = getMaxCategory(filter.getMonth());
-        Category maxYearCategory = getMaxCategory(filter.getYear());
-        Response response = new Response(
-                maxCategory,
-                maxDayCategory,
-                maxMonthCategory,
-                maxYearCategory
-        );
-        System.out.println(response);
-        saveToBinFile(new File("data.bin"));
-
-        return gson.toJson(response);
-    }
-
-    public Category getMaxCategory(String date) {
+    public Category getMaxCategoryByFilter(String date) {
         Map<String, Integer> map = new TreeMap<>();
         for (Request request : requestList) {
             if (request.getDate().contains(date)) {
@@ -72,10 +44,6 @@ public class Statistic implements Serializable {
                 map.merge(category, request.getSum(), Integer::sum);
             }
         }
-        return getMaxCategory(map);
-    }
-
-    public Category getMaxCategory(Map<String, Integer> map) {
         Optional<Map.Entry<String, Integer>> max = map.entrySet().stream()
                 .max(Comparator.comparingInt(Map.Entry::getValue));
         return max.map(kv -> new Category(kv.getKey(), kv.getValue())).orElse(null);
@@ -118,12 +86,12 @@ public class Statistic implements Serializable {
         return map;
     }
 
-    public Map<String, String> getTitleMap() {
-        return titleMap;
-    }
-
     public Map<String, Integer> getCategoryMap() {
         return categoryMap;
+    }
+
+    public void setCategoryMap(Map<String, Integer> categoryMap) {
+        this.categoryMap = new TreeMap<>(categoryMap);
     }
 
     public List<Request> getRequestList() {
