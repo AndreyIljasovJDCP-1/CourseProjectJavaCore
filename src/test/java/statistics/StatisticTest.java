@@ -5,23 +5,22 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Comparator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 @DisplayName("Тест класса Statistic.")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StatisticTest {
     private static Map<String, String> titleMap;
-    private final Comparator<Category> categoryComparator = (o1, o2) ->
-            Objects.equals(o1.getCategory(), o2.getCategory())
-                    && o1.getSum() == o2.getSum()
-                    ? 0 : -1;
 
     @BeforeAll
     static void setUpApp() {
         titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        titleMap = null;
     }
 
     @Test
@@ -34,7 +33,7 @@ class StatisticTest {
 
     @Test
     @Order(2)
-    @DisplayName("Тест: размер HashMap из tsv файла")
+    @DisplayName("Тест: размер HashMap из tsv файла = 8")
     void createTitleMapFromTSVReturnMapSize() {
         Assertions.assertEquals(8, titleMap.size());
     }
@@ -48,7 +47,7 @@ class StatisticTest {
     }
 
     @Order(4)
-    @DisplayName("Тест: проверка карты категорий")
+    @DisplayName("Тест: проверка карты категорий titleMap")
     @ParameterizedTest
     @MethodSource("getArguments")
     void createTitleMapFromTSVReturnRightHashMap(String input, String expected) {
@@ -83,7 +82,9 @@ class StatisticTest {
                 )
         );
         statistic.addToCategoryMap(request);
-        Assertions.assertEquals(101, statistic.getCategoryMap().get("быт"));
+        int expected = 101;
+        int actual = statistic.getCategoryMap().get("быт");
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
@@ -101,11 +102,25 @@ class StatisticTest {
                 )
         );
         statistic.addToCategoryMap(request);
-        Assertions.assertEquals(101, statistic.getCategoryMap().get("другое"));
+        int expected = 101;
+        int actual = statistic.getCategoryMap().get("другое");
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
     @Order(7)
+    @DisplayName("Тест: добавить запрос в список")
+    void addToRequestListCheckListSize() {
+        Request request = new Request("мыло", "2022.02.10", 1);
+        Statistic statistic = new Statistic(titleMap);
+        statistic.addToRequestList(request);
+        int expected = 1;
+        int actual = statistic.getRequestList().size();
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    @Order(8)
     @DisplayName("Тест: найти max категорию (в алфавитном порядке).")
     void getMaxCategoryReturnMaxCategory() {
         Statistic statistic = new Statistic(titleMap);
@@ -117,9 +132,38 @@ class StatisticTest {
                         "быт", 100
                 )
         );
-        Category expected = new Category("быт", 100);
-        int comparing = categoryComparator.compare(expected, statistic.getMaxCategory());
-        Assertions.assertEquals(0, comparing);
+        String expected = "быт";
+        String actual = statistic.getMaxCategory().getCategory();
+        Assertions.assertEquals(expected, actual);
     }
 
+
+    @Order(9)
+    @DisplayName("Тест: найти мах категорию по фильтру")
+    @ParameterizedTest
+    @MethodSource("getArguments1")
+    void getMaxCategoryByFilter(String expected, String date) {
+        Statistic statistic = new Statistic(titleMap);
+
+        statistic.addToCategoryMap(new Request("булка", "2022.02.10", 10));
+        statistic.addToRequestList(new Request("булка", "2022.02.10", 10));
+        statistic.addToCategoryMap(new Request("акции", "2022.01.11", 10));
+        statistic.addToRequestList(new Request("акции", "2022.01.11", 10));
+        statistic.addToCategoryMap(new Request("курица", "2022.02.13", 10));
+        statistic.addToRequestList(new Request("курица", "2022.02.13", 10));
+        statistic.addToCategoryMap(new Request("мыло", "2022.02.13", 10));
+        statistic.addToRequestList(new Request("мыло", "2022.02.13", 10));
+
+        String maxCategory = statistic.getMaxCategoryByFilter(date).getCategory();
+
+        Assertions.assertEquals(expected, maxCategory);
+    }
+
+    private static Stream<Arguments> getArguments1() {
+        return Stream.of(
+                Arguments.of("еда", "2022"),
+                Arguments.of("финансы", "2022.01"),
+                Arguments.of("быт", "2022.02.13")
+        );
+    }
 }
