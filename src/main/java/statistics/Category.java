@@ -1,8 +1,8 @@
 package statistics;
 
 public class Category {
-    private String category;
-    private int sum;
+    private final String category;
+    private final int sum;
 
     public Category(String category, int sum) {
         this.category = category;
@@ -13,20 +13,12 @@ public class Category {
         return category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public int getSum() {
         return sum;
     }
 
-    public void setSum(int sum) {
-        this.sum = sum;
-    }
-
     @Override
     public String toString() {
-        return "\ncategory: " + category + "\nsum: " + sum;
+        return String.format("{category: %s sum:%d}", category, sum);
     }
 }

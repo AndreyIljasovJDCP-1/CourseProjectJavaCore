@@ -1,8 +1,5 @@
 import com.google.gson.Gson;
-import statistics.Category;
-import statistics.Request;
-import statistics.Response;
-import statistics.Statistic;
+import statistics.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -14,7 +11,6 @@ public class Main {
     private static final int PORT = 8989;
 
     public static void main(String[] args) {
-
         File autoSave = new File("data.bin");
         Gson gson = new Gson();
         Statistic statistic;
@@ -25,7 +21,6 @@ public class Main {
             statistic = new Statistic(titleMap);
         }
 
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started...");
 
@@ -35,20 +30,29 @@ public class Main {
                              clientSocket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(
                              clientSocket.getInputStream()))) {
-
                     String jsonString = in.readLine();
                     Request request = gson.fromJson(jsonString, Request.class);
 
                     statistic.addToCategoryMap(request);
+                    statistic.addToRequestList(request);
+
+                    Filter filter = new Filter(request.getDate());
 
                     Category maxCategory = statistic.getMaxCategory();
-                    Response response = new Response(maxCategory);
+                    Category maxDayCategory = statistic.getMaxCategoryByFilter(filter.getDay());
+                    Category maxMonthCategory = statistic.getMaxCategoryByFilter(filter.getMonth());
+                    Category maxYearCategory = statistic.getMaxCategoryByFilter(filter.getYear());
+                    Response response = new Response(
+                            maxCategory,
+                            maxDayCategory,
+                            maxMonthCategory,
+                            maxYearCategory
+                    );
 
                     String responseJsonString = gson.toJson(response);
                     out.println(responseJsonString);
 
                     statistic.saveToBinFile(autoSave);
-
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage());
                 }
@@ -57,7 +61,5 @@ public class Main {
             System.out.println("Не могу стартовать сервер");
             e.printStackTrace();
         }
-
-
     }
 }

@@ -18,11 +18,6 @@ class StatisticTest {
             Objects.equals(o1.getCategory(), o2.getCategory())
                     && o1.getSum() == o2.getSum()
                     ? 0 : -1;
-    private final Comparator<Request> requestComparator = (o1, o2) ->
-            Objects.equals(o1.getTitle(), o2.getTitle())
-                    && Objects.equals(o1.getDate(), o2.getDate())
-                    && o1.getSum() == o2.getSum()
-                    ? 0 : -1;
 
     @BeforeAll
     static void setUpApp() {
@@ -72,8 +67,6 @@ class StatisticTest {
                 Arguments.of("акции", "финансы")
         );
     }
-
-
 
     @Test
     @Order(5)

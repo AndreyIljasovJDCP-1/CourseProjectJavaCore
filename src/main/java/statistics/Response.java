@@ -1,22 +1,26 @@
 package statistics;
 
 public class Response {
-    private Category maxCategory;
+    private final Category maxCategory;
+    private final Category maxDayCategory;
+    private final Category maxMonthCategory;
+    private final Category maxYearCategory;
 
-    public Response(Category maxCategory) {
+    public Response(
+            Category maxCategory,
+            Category maxDayCategory,
+            Category maxMonthCategory,
+            Category maxYearCategory
+    ) {
         this.maxCategory = maxCategory;
-    }
-
-    public Category getMaxCategory() {
-        return maxCategory;
-    }
-
-    public void setMaxCategory(Category maxCategory) {
-        this.maxCategory = maxCategory;
+        this.maxDayCategory = maxDayCategory;
+        this.maxMonthCategory = maxMonthCategory;
+        this.maxYearCategory = maxYearCategory;
     }
 
     @Override
     public String toString() {
-        return "maxCategory: " + maxCategory;
+        return String.format("maxCategory: %s\nmaxDayCategory: %s\nmaxMonthCategory: %s\nmaxYearCategory: %s",
+                maxCategory, maxDayCategory, maxMonthCategory, maxYearCategory);
     }
 }
