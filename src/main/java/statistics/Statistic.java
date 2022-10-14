@@ -1,6 +1,5 @@
 package statistics;
 
-import com.google.gson.Gson;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -16,7 +15,9 @@ import java.util.stream.Collectors;
 public class Statistic implements Serializable {
     private static final char SEPARATOR = '\t';
     private final Map<String, String> titleMap;
+
     private Map<String, Integer> categoryMap;
+
 
     public Statistic(Map<String, String> titleMap) {
         this.titleMap = titleMap;
@@ -82,5 +83,4 @@ public class Statistic implements Serializable {
     public void setCategoryMap(Map<String, Integer> categoryMap) {
         this.categoryMap = new TreeMap<>(categoryMap);
     }
-
 }

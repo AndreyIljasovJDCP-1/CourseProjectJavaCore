@@ -14,6 +14,7 @@ public class Main {
     private static final int PORT = 8989;
 
     public static void main(String[] args) {
+
         File autoSave = new File("data.bin");
         Gson gson = new Gson();
         Statistic statistic;
@@ -23,6 +24,7 @@ public class Main {
             Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
             statistic = new Statistic(titleMap);
         }
+
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started...");
