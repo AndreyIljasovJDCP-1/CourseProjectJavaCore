@@ -8,16 +8,14 @@ import java.util.Map;
 
 public class Main {
 
-    private static final int PORT = 8085;
+    private static final int PORT = 8989;
 
     public static void main(String[] args) {
         File autoSave = new File("data.bin");
         Gson gson = new Gson();
         Statistic statistic;
         if (autoSave.exists()) {
-            System.out.println("Restore history...");
             statistic = Statistic.loadFromBinFile(autoSave);
-            statistic.getRequestList().forEach(System.out::println);
         } else {
             Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
             statistic = new Statistic(titleMap);
