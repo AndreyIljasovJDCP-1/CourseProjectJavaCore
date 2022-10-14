@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class Main {
 
-    private static final int PORT = 8085;
+    private static final int PORT = 8989;
 
     public static void main(String[] args) {
         File autoSave = new File("data.bin");
