@@ -1,4 +1,5 @@
-import statistics.Statistic;
+import com.google.gson.Gson;
+import statistics.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -10,11 +11,12 @@ public class Main {
     private static final int PORT = 8085;
 
     public static void main(String[] args) {
-        File autoSavesData = new File("data.bin");
+        File autoSave = new File("data.bin");
+        Gson gson = new Gson();
         Statistic statistic;
-        if (autoSavesData.exists()) {
+        if (autoSave.exists()) {
             System.out.println("Restore history...");
-            statistic = Statistic.loadFromBinFile(autoSavesData);
+            statistic = Statistic.loadFromBinFile(autoSave);
             statistic.getRequestList().forEach(System.out::println);
         } else {
             Map<String, String> titleMap = Statistic.createTitleMapFromTSV("categories.tsv");
@@ -30,9 +32,29 @@ public class Main {
                              clientSocket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(
                              clientSocket.getInputStream()))) {
-                    String request = in.readLine();
-                    String response = statistic.processingRequest(request);
-                    out.println(response);
+                    String jsonString = in.readLine();
+                    Request request = gson.fromJson(jsonString, Request.class);
+
+                    statistic.addToCategoryMap(request);
+                    statistic.addToRequestList(request);
+
+                    Filter filter = new Filter(request.getDate());
+
+                    Category maxCategory = statistic.getMaxCategory();
+                    Category maxDayCategory = statistic.getMaxCategory(filter.getDay());
+                    Category maxMonthCategory = statistic.getMaxCategory(filter.getMonth());
+                    Category maxYearCategory = statistic.getMaxCategory(filter.getYear());
+                    Response response = new Response(
+                            maxCategory,
+                            maxDayCategory,
+                            maxMonthCategory,
+                            maxYearCategory
+                    );
+
+                    String responseJsonString = gson.toJson(response);
+                    out.println(responseJsonString);
+
+                    statistic.saveToBinFile(autoSave);
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage());
                 }
