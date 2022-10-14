@@ -73,21 +73,10 @@ class StatisticTest {
         );
     }
 
+
+
     @Test
     @Order(5)
-    @DisplayName("Тест: получить объект Request из строки json")
-    void getRequestFromJsonStringReturnRequest() {
-        Statistic statistic = new Statistic(titleMap);
-        String json = "{\"title\": \"мыло\", \"date\": \"2022.02.10\", \"sum\": 1}";
-        Request expected = new Request("мыло", "2022.02.10", 1);
-        int comparing = requestComparator.compare(expected, statistic.getRequestFromJsonString(json));
-
-        Assertions.assertEquals(0, comparing);
-
-    }
-
-    @Test
-    @Order(6)
     @DisplayName("Тест: добавить данные из запроса в статистику по категориям")
     void addToCategoryMapUpdateCategoryMap() {
         Request request = new Request("мыло", "2022.02.10", 1);
@@ -105,7 +94,7 @@ class StatisticTest {
     }
 
     @Test
-    @Order(7)
+    @Order(6)
     @DisplayName("Тест: добавить новый продукт в категорию \"другое\"")
     void addToCategoryMapAnotherCategory() {
         Request request = new Request("новый продукт", "2022.02.10", 101);
@@ -123,7 +112,7 @@ class StatisticTest {
     }
 
     @Test
-    @Order(8)
+    @Order(7)
     @DisplayName("Тест: найти max категорию (в алфавитном порядке).")
     void getMaxCategoryReturnMaxCategory() {
         Statistic statistic = new Statistic(titleMap);
@@ -140,13 +129,4 @@ class StatisticTest {
         Assertions.assertEquals(0, comparing);
     }
 
-    @Test
-    @Order(9)
-    @DisplayName("Тест: получить строку json из объекта Response")
-    void getJsonStringFromResponseReturnJsonString() {
-        Statistic statistic = new Statistic(titleMap);
-        Response response = new Response(new Category("еда", 100));
-        String expected = "{\"maxCategory\":{\"category\":\"еда\",\"sum\":100}}";
-        Assertions.assertEquals(expected, statistic.getJsonStringFromResponse(response));
-    }
 }
