@@ -17,6 +17,7 @@ public class Filter {
                 date.split("\\.")[1]
         );
     }
+
     public String getYear() {
         return date.split("\\.")[0];
     }

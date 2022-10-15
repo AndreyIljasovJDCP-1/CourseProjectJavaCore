@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -137,7 +138,6 @@ class StatisticTest {
         Assertions.assertEquals(expected, actual);
     }
 
-
     @Order(9)
     @DisplayName("Тест: найти мах категорию по фильтру")
     @ParameterizedTest
@@ -166,4 +166,31 @@ class StatisticTest {
                 Arguments.of("быт", "2022.02.13")
         );
     }
+
+    @Test
+    @Order(10)
+    @DisplayName("Тест: сохранить и загрузить файл data.bin")
+    void saveToBinFileLoadFromBinFileReturnRightStatisticObject() {
+        File autoSave = new File("src/test/resources/data.bin");
+        Statistic statistic = new Statistic(titleMap);
+
+        statistic.addToCategoryMap(new Request("булка", "2022.02.10", 10));
+        statistic.addToRequestList(new Request("булка", "2022.02.10", 10));
+        statistic.addToCategoryMap(new Request("акции", "2022.01.11", 10));
+        statistic.addToRequestList(new Request("акции", "2022.01.11", 10));
+        statistic.addToCategoryMap(new Request("курица", "2022.02.13", 10));
+        statistic.addToRequestList(new Request("курица", "2022.02.13", 10));
+        statistic.addToCategoryMap(new Request("мыло", "2022.02.13", 10));
+        statistic.addToRequestList(new Request("мыло", "2022.02.13", 10));
+
+        statistic.saveToBinFile(autoSave);
+
+        Statistic restoredStatistic = Statistic.loadFromBinFile(autoSave);
+
+        int expected = restoredStatistic.getCategoryMap().get("еда");
+        int actual = statistic.getCategoryMap().get("еда");
+
+        Assertions.assertEquals(expected, actual);
+    }
+
 }
